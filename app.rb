@@ -1,4 +1,4 @@
-require_relative "library"
+require_relative "article"
 
-library = Library.new
-library.run
+article = Article.new
+article.run

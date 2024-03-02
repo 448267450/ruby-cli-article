@@ -1,43 +1,46 @@
 require 'minitest/autorun'
-require_relative '../library'
+require_relative '../article'
 
 class TestLibrary < Minitest::Test
   def setup
-    @library = Library.new
+    @article = Article.new
   end
 
   def test_initialize
-    assert_empty @library.instance_variable_get(:@articles)
+    assert_empty @article.instance_variable_get(:@articles)
   end
 
   def test_search_article
     # user input
-    allow_user_input("Writer Name", "Your Name") do
-      @library.send(:search_article)
+    allow_user_input("Charles Dickens", "John Doe") do
+      @article.send(:search_article)
     end
 
-    articles = @library.instance_variable_get(:@articles)
+    articles = @article.instance_variable_get(:@articles)
     refute_empty articles
-    assert_instance_of Article, articles.first
-    assert_equal "Writer Name", articles.first.attr_writer
-    assert_equal "Your Name", articles.first.attr_reader
+    assert_instance_of Hash, articles.first
+    assert_equal "Charles Dickens", articles.first[:author]
+    assert_equal "Great Expectations was selected!", articles.first[:book]
+    assert_equal "John Doe", articles.first[:reader]
   end
 
   def test_show_articles
     # article samples to test
-    @library.instance_variable_set(:@articles, [
-      Article.new("Writer1", "Reader1"),
-      Article.new("Writer2", "Reader2")
+    @article.instance_variable_set(:@articles, [
+      { author: "Writer1", book: "Book1", reader: "Reader1" },
+      { author: "Writer2", book: "Book2", reader: "Reader2" }
     ])
 
     # Redirect standard output to a string for subsequent assertions
     output = capture_io do
-      @library.send(:show_articles)
+      @article.send(:show_articles)
     end
 
     assert_match /Writer1/, output
+    assert_match /Book1/, output
     assert_match /Reader1/, output
     assert_match /Writer2/, output
+    assert_match /Book2/, output
     assert_match /Reader2/, output
   end
 
@@ -45,7 +48,7 @@ class TestLibrary < Minitest::Test
     # test run with invalid option
     output = capture_io do
       allow_user_input("5") do
-        @library.run
+        @article.run
       end
     end
 
@@ -56,7 +59,7 @@ class TestLibrary < Minitest::Test
     # user exit
     output = capture_io do
       allow_user_input("3") do
-        @library.run
+        @article.run
       end
     end
 
